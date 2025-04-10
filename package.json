@@ -1,0 +1,26 @@
+{
+  "name": "judolslayer",
+  "version": "1.0.0",
+  "description": "Program pembasmi komenan judol",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MBenedictt/JudolSlayerProject.git"
+  },
+  "author": "Matthew Benedict",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/MBenedictt/JudolSlayerProject/issues"
+  },
+  "homepage": "https://github.com/MBenedictt/JudolSlayerProject#readme",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "googleapis": "^148.0.0",
+    "open": "^10.1.0"
+  }
+}
