@@ -32,22 +32,21 @@ Langkah 4: Aktifkan YouTube Data API dan Buat OAuth Client ID
 
 Langkah 5: Buka Terminal di VS Code
 - Di VS Code, klik Terminal → New Terminal
-- Inisialisasi project Node.js dengan menjalankan: npm init -y
 
 Langkah 6: Instal Library yang Dibutuhkan
-- Jalankan perintah berikut di terminal untuk menginstal package yang diperlukan: npm install googleapis dotenv
+- Jalankan perintah berikut di terminal untuk menginstal package yang diperlukan: npm install
 
 Langkah 7: Siapkan File
 - Pastikan folder proyek Anda berisi:
 - File credentials.json (dari Google Cloud Console)
-- File .env, lalu isi dengan baris berikut: VIDEO_ID=id_video_youtube_anda
+- File .env, lalu isi dengan baris berikut: `VIDEO_ID=id_video_youtube_anda`
 
 Langkah 8: Masukkan Kode Program
 - Salin dan tempel seluruh kode JavaScript ke dalam file index.js.
 
 Langkah 9: Jalankan Program
 - Di terminal, jalankan:
-  - node index.js
+  - npm start
 - Terminal akan menampilkan URL — salin dan buka di browser
 - Login dengan akun YouTube Anda dan berikan izin akses
 - Setelah itu, browser akan mengarahkan Anda ke localhost dengan sebuah “code” — salin kodenya
