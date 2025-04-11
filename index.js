@@ -101,14 +101,23 @@ function getJudolComment(text) {
 async function deleteComments(auth, commentIds) {
     const youtube = google.youtube({ version: "v3", auth });
 
-    for (const commentId of commentIds) {
+    const totalCommentsToBeDeleted = commentIds.length;
+    let totalDeletedComments = 0;
+    do{
+        const commentIdsChunk = commentIds.splice(0,50);
+        if (commentIdsChunk.length === 0) break;
         try {
-            await youtube.comments.delete({ id: commentId });
-            console.log(`Deleted comment: ${commentId}`);
+            await youtube.comments.setModerationStatus({
+                id: commentIdsChunk,
+                moderationStatus: "rejected"
+            });
+            totalDeletedComments += commentIdsChunk.length;
+            console.log(`Progress: ${totalDeletedComments}/${totalCommentsToBeDeleted} (${commentIds.length} remaining)
+Deleted the following comment IDs:`, commentIdsChunk);
         } catch (error) {
-            console.error(`Failed to delete comment ${commentId}:`, error.message);
+            console.error(`Failed to delete these comment IDs: ${commentIdsChunk}:`, error.message);
         }
-    }
+    } while (commentIds.length > 0);
 }
 
 async function youtubeContentList(auth) {

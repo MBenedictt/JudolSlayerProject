@@ -54,4 +54,6 @@ Langkah 9: Jalankan Program
 - Tempelkan kembali ke terminal
 - Program akan memindai dan menghapus komentar spam secara otomatis!
 
-Catatan: Saat pertama kali dijalankan, file token.json akan dibuat. Selama file ini ada dan belum kadaluarsa, Anda tidak perlu login ulang di masa depan.
+Catatan:
+- Saat pertama kali dijalankan, file token.json akan dibuat. Selama file ini ada dan belum kadaluarsa, Anda tidak perlu login ulang di masa depan.
+- YouTube Data API v3 memiliki batas penggunaan sebanyak [10.000 API quota units per hari](https://developers.google.com/youtube/v3/determine_quota_cost), sehingga jika anda telah menjalankan program ini beberapa kali dalam sehari, Anda dapat mencapai batas API quota harian sehingga program tidak dapat menghapus komentar hingga besok.
