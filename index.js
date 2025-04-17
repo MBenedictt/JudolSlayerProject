@@ -6,7 +6,7 @@ const { google } = require("googleapis");
 // Load client secrets from credentials.json
 const SCOPES = ["https://www.googleapis.com/auth/youtube.force-ssl"];
 const TOKEN_PATH = "token.json";
-const youtubeChannelID = process.env.YOUTUBE_CHANNEL_ID; // Replace with your video ID
+const youtubeVideoID = process.env.YOUTUBE_VIDEO_ID; // Replace with your video ID
 
 // Load OAuth 2.0 client
 async function authorize() {
@@ -51,8 +51,9 @@ function getNewToken(oAuth2Client) {
 }
 
 // Fetch comments
-async function fetchComments(auth, VIDEO_ID) {
+async function fetchComments(auth) {
     const youtube = google.youtube({ version: "v3", auth });
+    const VIDEO_ID = youtubeVideoID;
 
     try {
         const response = await youtube.commentThreads.list({
@@ -74,7 +75,6 @@ async function fetchComments(auth, VIDEO_ID) {
                 console.log(`🚨 Spam detected: "${commentText}"`);
                 spamComments.push(commentId);
             }
-            
         });
 
         return spamComments;
@@ -87,93 +87,34 @@ async function fetchComments(auth, VIDEO_ID) {
 
 function getJudolComment(text) {
     const normalizedText = text.normalize("NFKD");
-    if (text !== normalizedText) { 
-        return true
-    }
-    const blockedWords = JSON.parse(fs.readFileSync("blockedword.json"));
-
-    const lowerText = text.toLowerCase();
-
-    return blockedWords.some(word => lowerText.includes(word.toLowerCase()));
+    return text !== normalizedText;
 }
 
 // Delete comments
 async function deleteComments(auth, commentIds) {
     const youtube = google.youtube({ version: "v3", auth });
 
-    const totalCommentsToBeDeleted = commentIds.length;
-    let totalDeletedComments = 0;
-    do{
-        const commentIdsChunk = commentIds.splice(0,50);
-        if (commentIdsChunk.length === 0) break;
+    for (const commentId of commentIds) {
         try {
-            await youtube.comments.setModerationStatus({
-                id: commentIdsChunk,
-                moderationStatus: "rejected"
-            });
-            totalDeletedComments += commentIdsChunk.length;
-            console.log(`Progress: ${totalDeletedComments}/${totalCommentsToBeDeleted} (${commentIds.length} remaining)
-Deleted the following comment IDs:`, commentIdsChunk);
+            await youtube.comments.delete({ id: commentId });
+            console.log(`Deleted comment: ${commentId}`);
         } catch (error) {
-            console.error(`Failed to delete these comment IDs: ${commentIdsChunk}:`, error.message);
+            console.error(`Failed to delete comment ${commentId}:`, error.message);
         }
-    } while (commentIds.length > 0);
-}
-
-async function youtubeContentList(auth) {
-    const youtube = google.youtube({ version: "v3", auth });
-
-    try {
-        const response = await youtube.channels.list({
-            part: "contentDetails",
-            id: youtubeChannelID, // ← use forUsername if you're passing a name
-        });
-
-        const channel = response.data.items[0];
-        const uploadsPlaylistId = channel.contentDetails.relatedPlaylists.uploads;
-
-        const allVideos = [];
-        let nextPageToken = "";
-
-        do {
-            const playlistResponse = await youtube.playlistItems.list({
-                part: "snippet",
-                playlistId: uploadsPlaylistId,
-                maxResults: 50,
-                pageToken: nextPageToken,
-            });
-
-            allVideos.push(...playlistResponse.data.items);
-            nextPageToken = playlistResponse.data.nextPageToken;
-        } while (nextPageToken);
-        return allVideos;
-    } catch (error) {
-        console.error("Error fetching videos:", error);
-        return [];
     }
 }
 
 (async () => {
     try {
         const auth = await authorize();
-        const contentList = await youtubeContentList(auth);
-
-    for (const video of contentList) {
-        const title = video.snippet.title;
-        const videoId = video.snippet.resourceId.videoId;
-        console.log(`\n📹 Checking video: ${title} (ID: ${videoId})`);
-        const spamComments = await fetchComments(auth, videoId);
+        const spamComments = await fetchComments(auth);
 
         if (spamComments.length > 0) {
-            console.log(`🚫 Found ${spamComments.length} spam comments. Deleting...`);
+            console.log(`Found ${spamComments.length} spam comments. Deleting...`);
             await deleteComments(auth, spamComments);
-            console.log("✅ Spam comments deleted.");
         } else {
-            console.log("✅ No spam comments found.");
+            console.log("No spam comments found.");
         }
-    }
-    
-        
     } catch (error) {
         console.error("Error running script:", error);
     }
